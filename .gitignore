@@ -1,0 +1,20 @@
+# Python
+api/.venv/
+api/__pycache__/
+api/**/__pycache__/
+api/*.egg-info/
+api/.pytest_cache/
+api/earnings.db
+api/.env
+
+# Node
+web/node_modules/
+web/.next/
+web/out/
+web/.env.local
+web/.env*.local
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
