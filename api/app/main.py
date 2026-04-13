@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings, parse_tickers
+from app.config import configured_tickers, get_settings
 from app.db import SessionLocal
 from app.ingest import ingest_all_configured
 from app.repository import ensure_symbols
@@ -34,7 +34,8 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     db = SessionLocal()
     try:
-        tickers = parse_tickers(settings.default_tickers)
+        tickers = configured_tickers()
+        logger.info("Earnings cohort: %s symbols (override with STOCK_EARNINGS_DEFAULT_TICKERS in api/.env)", len(tickers))
         ensure_symbols(db, tickers)
     finally:
         db.close()
@@ -60,3 +61,9 @@ app.include_router(admin.router)
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/health/cohort")
+def health_cohort() -> dict:
+    t = configured_tickers()
+    return {"symbol_count": len(t), "first_five": t[:5], "last_five": t[-5:]}

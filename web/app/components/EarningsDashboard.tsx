@@ -76,7 +76,10 @@ function CompanyCard({
       : "Data is within the freshness window.";
 
   return (
-    <section className="rounded-xl border border-zinc-200/80 bg-white/80 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40">
+    <section
+      id={`company-${company.ticker}`}
+      className="rounded-xl border border-zinc-200/80 bg-white/80 p-6 shadow-sm scroll-mt-24 dark:border-zinc-800 dark:bg-zinc-950/40"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold tracking-tight">
@@ -256,6 +259,54 @@ export function EarningsDashboard({
 
   return (
     <div className="flex flex-col gap-8">
+      <section className="rounded-xl border border-zinc-200/80 bg-white/90 p-4 dark:border-zinc-800 dark:bg-zinc-950/50">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+            Cohort overview
+          </h2>
+          <span className="text-xs text-zinc-500">
+            {data.companies.length} of {data.cohort_symbol_count} symbols — jump to a card
+            or scroll. If the count is wrong, check{" "}
+            <code className="rounded bg-zinc-100 px-1 text-[10px] dark:bg-zinc-800">
+              STOCK_EARNINGS_DASHBOARD_TICKERS
+            </code>{" "}
+            in{" "}
+            <code className="rounded bg-zinc-100 px-1 text-[10px] dark:bg-zinc-800">
+              web/.env.local
+            </code>{" "}
+            (remove it to use the full API cohort) and restart{" "}
+            <code className="rounded bg-zinc-100 px-1 text-[10px] dark:bg-zinc-800">
+              npm run dev
+            </code>
+            .
+          </span>
+        </div>
+        <div className="mt-3 max-h-48 overflow-y-auto">
+          <ul className="flex flex-wrap gap-2">
+            {data.companies.map((c) => {
+              const qn = c.quarters.length;
+              const label =
+                qn === 0
+                  ? "no rows yet"
+                  : `${qn} quarter${qn === 1 ? "" : "s"}`;
+              return (
+                <li key={c.ticker}>
+                  <a
+                    href={`#company-${c.ticker}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    <span>{c.ticker}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">
+                      ({label})
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
       {data.companies.map((c) => (
         <CompanyCard
           key={c.ticker}

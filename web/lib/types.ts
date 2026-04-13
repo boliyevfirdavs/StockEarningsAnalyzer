@@ -28,5 +28,6 @@ export interface CompanyOut {
 
 export interface EarningsResponse {
   freshness_hours: number;
+  cohort_symbol_count: number;
   companies: CompanyOut[];
 }

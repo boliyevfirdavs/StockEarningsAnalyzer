@@ -15,7 +15,7 @@ def post_refresh(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
     x_refresh_token: str | None = Header(default=None, alias="X-Refresh-Token"),
-    tickers: str | None = Query(default=None, description="Optional comma list; default all DEFAULT_TICKERS"),
+    tickers: str | None = Query(default=None, description="Optional comma list; default full configured cohort"),
 ) -> dict:
     if settings.refresh_secret:
         if x_refresh_token != settings.refresh_secret:

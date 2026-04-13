@@ -6,7 +6,7 @@ function apiBase(): string {
 
 function earningsPath(): string {
   const base = `${apiBase()}/companies/earnings`;
-  const watch = process.env.WATCHLIST_TICKERS?.trim();
+  const watch = process.env.STOCK_EARNINGS_DASHBOARD_TICKERS?.trim();
   if (!watch) return base;
   const q = new URLSearchParams({ tickers: watch });
   return `${base}?${q.toString()}`;

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import datetime as dt
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
-from app.config import Settings, get_settings, parse_tickers
+from app.config import Settings, configured_tickers, get_settings, parse_tickers
 from app.db import get_db
-from app.repository import load_companies_with_quarters
+from app.repository import ensure_symbols, load_companies_with_quarters
 from app.schemas import CompanyOut, EarningsResponse, QuarterOut, SyncOut
 
 router = APIRouter(prefix="/companies", tags=["companies"])
@@ -32,9 +32,10 @@ def _is_stale(last_success: dt.datetime | None, last_error: str | None, freshnes
 
 @router.get("/earnings", response_model=EarningsResponse)
 def get_earnings(
+    response: Response,
     tickers: str | None = Query(
         default=None,
-        description="Comma-separated tickers; defaults to DEFAULT_TICKERS from env",
+        description="Comma-separated tickers; defaults to cohort from settings (see STOCK_EARNINGS_DEFAULT_TICKERS)",
     ),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -42,7 +43,9 @@ def get_earnings(
     if tickers:
         want = parse_tickers(tickers)
     else:
-        want = parse_tickers(settings.default_tickers)
+        want = configured_tickers()
+    ensure_symbols(db, want)
+    response.headers["X-Cohort-Size"] = str(len(want))
     freshness = dt.timedelta(hours=settings.freshness_hours)
     companies_orm = load_companies_with_quarters(db, want)
     by_ticker = {c.ticker: c for c in companies_orm}
@@ -96,4 +99,8 @@ def get_earnings(
             )
         )
 
-    return EarningsResponse(freshness_hours=settings.freshness_hours, companies=companies)
+    return EarningsResponse(
+        freshness_hours=settings.freshness_hours,
+        cohort_symbol_count=len(want),
+        companies=companies,
+    )

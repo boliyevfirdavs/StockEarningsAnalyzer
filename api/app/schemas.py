@@ -36,4 +36,5 @@ class CompanyOut(BaseModel):
 
 class EarningsResponse(BaseModel):
     freshness_hours: int = Field(description="Hours after last success before is_stale=true")
+    cohort_symbol_count: int = Field(description="Symbols requested for this response (matches companies length)")
     companies: list[CompanyOut]

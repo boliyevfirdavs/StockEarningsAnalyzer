@@ -22,15 +22,15 @@ cd api
 
 Or: `bash run-api.sh` from this directory (same as the `uvicorn` line above).
 
-On startup, default tickers from `DEFAULT_TICKERS` are ensured in the DB. If `AUTO_INGEST_ON_STARTUP=true` (default), a background thread runs a full ingest.
+On startup, the configured ticker cohort is ensured in the DB. If `AUTO_INGEST_ON_STARTUP=true` (default), a background thread runs a full ingest.
 
-### Changing `DEFAULT_TICKERS`
+### Changing the ticker cohort
 
-1. Set `DEFAULT_TICKERS` in `api/.env` to a comma-separated list (no spaces required).
+1. Set **`STOCK_EARNINGS_DEFAULT_TICKERS`** in `api/.env` to a comma-separated list (copy from [`api/.env.example`](.env.example)). Do **not** use `DEFAULT_TICKERS` — that name is often set in shells/tutorials to a short list (e.g. five mega-caps) and would override your cohort; this project only reads **`STOCK_EARNINGS_DEFAULT_TICKERS`** for overrides.
 2. **Restart the process** so `ensure_symbols` runs again and adds any new tickers.
 3. Run `POST /admin/refresh` (or rely on the next startup ingest) to load quarters for new symbols.
 
-The baked-in default is defined in `app/config.py` (~20 large-cap names). Override via env for a custom cohort without editing code.
+The baked-in default is defined in `app/config.py` (~46 liquid S&amp;P-style names). Override via **`STOCK_EARNINGS_DEFAULT_TICKERS`** for a custom cohort without editing code.
 
 ## Refresh data
 
@@ -45,7 +45,7 @@ Optional: `POST /admin/refresh?tickers=AAPL,MSFT`. If `REFRESH_SECRET` is set, p
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `DATABASE_URL` | `sqlite:///./earnings.db` | SQLAlchemy URL (Postgres supported) |
-| `DEFAULT_TICKERS` | ~20 mega-caps (see `app/config.py`) | Comma-separated cohort to seed and ingest |
+| `STOCK_EARNINGS_DEFAULT_TICKERS` | unset (uses code default in `app/config.py`) | Comma-separated cohort to seed and ingest |
 | `FRESHNESS_HOURS` | `24` | API marks sync stale after this age |
 | `MAX_QUARTERS` | `12` | Quarters to keep per ingest |
 | `AUTO_INGEST_ON_STARTUP` | `true` | Background ingest on API boot |

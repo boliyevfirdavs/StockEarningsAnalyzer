@@ -8,7 +8,7 @@ import pandas as pd
 import yfinance as yf
 from sqlalchemy.orm import Session
 
-from app.config import Settings, get_settings, parse_tickers
+from app.config import Settings, configured_tickers, get_settings
 from app.normalize import classify_eps, classify_revenue, surprise_pct
 from app.repository import get_symbol_by_ticker, update_sync_state, upsert_quarters
 
@@ -107,6 +107,6 @@ def ingest_ticker(db: Session, ticker: str, settings: Settings | None = None) ->
 
 def ingest_all_configured(db: Session, settings: Settings | None = None) -> None:
     settings = settings or get_settings()
-    tickers = parse_tickers(settings.default_tickers)
+    tickers = configured_tickers()
     for t in tickers:
         ingest_ticker(db, t, settings)
